@@ -43,5 +43,7 @@ module SimpleDrive
 
     # Single shared Bearer token for the API. Unset means every request is rejected.
     config.x.api_token = ENV["API_TOKEN"]
+
+    config.x.storage = config_for(:storage)
   end
 end

@@ -1,0 +1,17 @@
+# Which backend new blobs are written to, plus per-backend settings.
+default: &default
+  backend: <%= ENV.fetch("STORAGE_BACKEND", "local") %>
+  local:
+    path: <%= ENV.fetch("LOCAL_STORAGE_PATH", "storage/blobs") %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+  backend: local
+  local:
+    path: tmp/storage/test
+
+production:
+  <<: *default

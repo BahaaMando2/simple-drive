@@ -20,11 +20,15 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       API_TOKEN: ${API_TOKEN:-dev-token-change-me}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      LOCAL_STORAGE_PATH: /data/blobs
     volumes:
       - .:/app
+      - blobs:/data
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  blobs:

@@ -8,6 +8,9 @@
 /tmp/pids/*
 !/tmp/pids/.keep
 
+# Local storage backend default directory
+/storage/
+
 # Secrets
 /config/master.key
 /.env*

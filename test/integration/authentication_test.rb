@@ -32,7 +32,7 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
   test "accepts the configured token, scheme case-insensitive" do
     get "/v1/blobs/anything", headers: { "Authorization" => "bearer test-token" }
 
-    assert_response :not_implemented
+    assert_response :not_found # authenticated; the blob just doesn't exist
   end
 
   test "health check needs no token" do

@@ -1,6 +1,7 @@
 .git
 /log/*
 /tmp/*
+/storage/
 /config/master.key
 *.pdf
 requirments.txt
