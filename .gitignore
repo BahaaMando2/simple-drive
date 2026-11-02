@@ -1,0 +1,17 @@
+/.bundle
+
+# Logs and temp files
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Secrets
+/config/master.key
+/.env*
+
+# Hiring brief: belongs to the company, not to this public repo
+/requirments.txt
+/*.pdf

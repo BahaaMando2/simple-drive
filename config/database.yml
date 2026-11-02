@@ -1,0 +1,22 @@
+# PostgreSQL. Connection details come from the environment so the same file
+# works in docker compose, CI (DATABASE_URL) and production.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  username: <%= ENV.fetch("DB_USER", "postgres") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
+
+development:
+  <<: *default
+  database: simple_drive_development
+
+# Wiped and recreated by the test suite. Never point this at real data.
+test:
+  <<: *default
+  database: simple_drive_test
+
+production:
+  <<: *default
+  database: simple_drive_production
