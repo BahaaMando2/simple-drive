@@ -11,6 +11,24 @@ services:
       timeout: 5s
       retries: 15
 
+  # S3-compatible server for the s3 backend. Official MinIO images left Docker
+  # Hub in 2025; this is the last Bitnami build of the real MinIO server.
+  minio:
+    image: bitnamilegacy/minio:2025.5.24
+    environment:
+      MINIO_ROOT_USER: simple-drive
+      MINIO_ROOT_PASSWORD: simple-drive-secret
+      MINIO_DEFAULT_BUCKETS: simple-drive
+    ports:
+      - "9001:9001" # web console
+    volumes:
+      - miniodata:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:9000/minio/health/live"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
   app:
     build: .
     ports:
@@ -22,13 +40,21 @@ services:
       API_TOKEN: ${API_TOKEN:-dev-token-change-me}
       STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
       LOCAL_STORAGE_PATH: /data/blobs
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: simple-drive
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: simple-drive
+      S3_SECRET_ACCESS_KEY: simple-drive-secret
     volumes:
       - .:/app
       - blobs:/data
     depends_on:
       db:
         condition: service_healthy
+      minio:
+        condition: service_healthy
 
 volumes:
   pgdata:
   blobs:
+  miniodata:

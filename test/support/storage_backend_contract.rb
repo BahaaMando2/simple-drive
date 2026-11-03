@@ -20,7 +20,9 @@ module StorageBackendContract
     end
 
     test "contract: similar or path-like ids never collide" do
-      ids = [ "a/b", "a_b", "A/B", "a/b/", "../a/b", "مرحبا/ملف.txt" ]
+      # Includes ids that broke raw S3 keys on MinIO: dot segments, "//", and
+      # "/leading" vs "leading", which silently shared one key.
+      ids = [ "a/b", "a_b", "A/B", "a/b/", "a//b", "../a/b", "./a", "..", "leading", "/leading", "مرحبا/ملف.txt" ]
       ids.each { |id| backend.put(id, "value of #{id}".b) }
 
       ids.each { |id| assert_equal "value of #{id}".b, backend.get(id) }
