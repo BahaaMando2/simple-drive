@@ -74,6 +74,17 @@ jobs:
           - 9000:9000
         options: --health-cmd="curl -fs http://localhost:9000/minio/health/live" --health-interval=5s --health-timeout=5s --health-retries=20
 
+      # Real FTP server for the FTP backend tests. Passive data ports must be
+      # published too, and ADDRESS must be reachable from the runner.
+      ftp:
+        image: delfer/alpine-ftp-server@sha256:60bb774d8408d9d4d5c74d05d1c086a34ce192c6c1a142ffac268cac0dbc6fac
+        env:
+          USERS: "simple-drive|simple-drive-secret"
+          ADDRESS: 127.0.0.1
+        ports:
+          - 21:21
+          - 21000-21010:21000-21010
+
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
@@ -94,4 +105,7 @@ jobs:
           S3_BUCKET: simple-drive
           S3_ACCESS_KEY_ID: simple-drive
           S3_SECRET_ACCESS_KEY: simple-drive-secret
+          FTP_HOST: 127.0.0.1
+          FTP_USER: simple-drive
+          FTP_PASSWORD: simple-drive-secret
         run: bin/rails db:test:prepare test

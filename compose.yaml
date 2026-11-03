@@ -29,6 +29,14 @@ services:
       timeout: 5s
       retries: 30
 
+  # FTP server for the ftp backend (vsftpd). ADDRESS is what it tells clients
+  # to connect to for passive-mode data connections.
+  ftp:
+    image: delfer/alpine-ftp-server@sha256:60bb774d8408d9d4d5c74d05d1c086a34ce192c6c1a142ffac268cac0dbc6fac
+    environment:
+      USERS: "simple-drive|simple-drive-secret"
+      ADDRESS: ftp
+
   app:
     build: .
     ports:
@@ -45,6 +53,9 @@ services:
       S3_REGION: us-east-1
       S3_ACCESS_KEY_ID: simple-drive
       S3_SECRET_ACCESS_KEY: simple-drive-secret
+      FTP_HOST: ftp
+      FTP_USER: simple-drive
+      FTP_PASSWORD: simple-drive-secret
     volumes:
       - .:/app
       - blobs:/data
@@ -53,6 +64,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      ftp:
+        condition: service_started
 
 volumes:
   pgdata:

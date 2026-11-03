@@ -34,3 +34,5 @@ group :development, :test do
 end
 
 gem "minitest-mock", "~> 5.27", group: :test
+
+gem "net-ftp", "~> 0.3.9"

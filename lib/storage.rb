@@ -14,7 +14,8 @@ module Storage
   BACKENDS = {
     "local" => LocalBackend,
     "database" => DatabaseBackend,
-    "s3" => S3Backend
+    "s3" => S3Backend,
+    "ftp" => FtpBackend
   }.freeze
 
   class << self
