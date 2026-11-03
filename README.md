@@ -3,8 +3,8 @@
 A Rails API that stores and retrieves blobs behind one interface, with pluggable
 storage backends (S3-compatible, database, local filesystem, FTP).
 
-> Work in progress: the API, authentication and local filesystem backend are done;
-> the S3, database and FTP backends are being added one at a time.
+> Work in progress: the API, authentication, local filesystem and database backends are done;
+> the S3 and FTP backends are being added one at a time.
 
 ## Run it
 
@@ -25,7 +25,7 @@ curl http://localhost:3000/v1/blobs/hello -H "Authorization: Bearer dev-token-ch
 | Variable             | Default                | Meaning                                  |
 |----------------------|------------------------|------------------------------------------|
 | `API_TOKEN`          | `dev-token-change-me` in compose; unset elsewhere means every request is rejected | Bearer token, e.g. `openssl rand -hex 32` |
-| `STORAGE_BACKEND`    | `local`                | Backend for new blobs: `local`           |
+| `STORAGE_BACKEND`    | `local`                | Backend for new blobs: `local`, `database` |
 | `LOCAL_STORAGE_PATH` | `storage/blobs` (`/data/blobs` in compose) | Directory for the local backend |
 
 Settings live in `config/storage.yml`.
@@ -90,3 +90,7 @@ empty blobs, path-like and unicode ids, overwrite, not-found.
 
 - **Local filesystem.** One file per blob, named by the SHA-256 of the id. The id is never used
   as a path, so `../../etc/passwd` can't escape the directory, and distinct ids can't collide.
+- **Database.** Bytes in their own `blob_contents` table (`bytea`, raw bytes, not Base64), separate
+  from the `blobs` metadata table and with no foreign key to it, since a backend only knows ids
+  and bytes. It shares the app's database, so the bytes and the metadata row commit or roll back
+  in the same transaction.
