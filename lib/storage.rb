@@ -12,7 +12,8 @@ module Storage
   class NotFound < Error; end
 
   BACKENDS = {
-    "local" => LocalBackend
+    "local" => LocalBackend,
+    "database" => DatabaseBackend
   }.freeze
 
   class << self
