@@ -3,8 +3,8 @@
 A Rails API that stores and retrieves blobs behind one interface, with pluggable
 storage backends (S3-compatible, database, local filesystem, FTP).
 
-> Work in progress: the API, authentication, local filesystem and database backends are done;
-> the S3 and FTP backends are being added one at a time.
+> Work in progress: the API, authentication, and the local filesystem, database and S3 backends are
+> done; the FTP backend are being added one at a time.
 
 ## Run it
 
@@ -25,8 +25,9 @@ curl http://localhost:3000/v1/blobs/hello -H "Authorization: Bearer dev-token-ch
 | Variable             | Default                | Meaning                                  |
 |----------------------|------------------------|------------------------------------------|
 | `API_TOKEN`          | `dev-token-change-me` in compose; unset elsewhere means every request is rejected | Bearer token, e.g. `openssl rand -hex 32` |
-| `STORAGE_BACKEND`    | `local`                | Backend for new blobs: `local`, `database` |
+| `STORAGE_BACKEND`    | `local`                | Backend for new blobs: `local`, `database`, `s3` |
 | `LOCAL_STORAGE_PATH` | `storage/blobs` (`/data/blobs` in compose) | Directory for the local backend |
+| `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | MinIO in compose; region `us-east-1` | Any S3-compatible service. Path-style URLs; the bucket must exist |
 
 Settings live in `config/storage.yml`.
 
