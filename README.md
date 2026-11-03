@@ -95,3 +95,16 @@ empty blobs, path-like and unicode ids, overwrite, not-found.
   from the `blobs` metadata table and with no foreign key to it, since a backend only knows ids
   and bytes. It shares the app's database, so the bytes and the metadata row commit or roll back
   in the same transaction.
+- **S3-compatible.** Plain `Net::HTTP` plus our own AWS Signature V4 implementation
+  (`lib/storage/sig_v4_signer.rb`), with no S3 SDK, as the brief requires. The signer is tested
+  step by step against AWS's official SigV4 test suite, and the backend runs the contract
+  against a real MinIO server, locally and in CI. A wrong secret key is rejected by the server
+  with `SignatureDoesNotMatch`.
+  - **Object keys are the SHA-256 of the id.** I started with raw ids as keys. Testing against
+    MinIO showed `..`, `./a` and `a//b` were rejected, and `/leading` silently overwrote `leading`.
+    Key rules differ between S3-compatible servers, and hex keys never trip them. The contract
+    now includes these ids, so every backend is checked against them.
+  - **A 404 with `NoSuchBucket` is a misconfiguration (502)**, not a missing blob. Only
+    `NoSuchKey` means "not found".
+  - **Local MinIO image:** official MinIO images left Docker Hub in 2025, so compose and CI use
+    `bitnamilegacy/minio`, the last Bitnami build of the real server.
