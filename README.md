@@ -38,7 +38,7 @@ STORAGE_BACKEND=s3 docker compose up
 docker compose run --rm app bin/rails test
 ```
 
-That's 68 tests: unit tests for every backend and the signer, plus integration tests for
+That's 72 tests: unit tests for every backend and the signer, plus integration tests for
 the API. On GitHub, CI also runs RuboCop, Brakeman and bundler-audit.
 
 ## API
@@ -114,7 +114,12 @@ POST /v1/blobs ─► BlobsController ─► blobs table (metadata: id, size, ba
   (`"27"` for its 36-character Base64 string). `created_at` is in UTC, to the second.
 - **Ids can be any string, including paths** like `docs/report.pdf`. The GET route is a glob
   (`*id`) with `format: false`. A plain `:id` route would reject the `/` and treat `.pdf` as a
-  response format. Ids are capped at 1024 bytes, which keeps the primary-key index bounded.
+  response format. Ids are capped at 1024 bytes, which keeps the primary-key index bounded, and
+  can't contain NUL characters, which Postgres can't store.
+- **Percent-encode the id in the URL.** Rails merges `//` and drops a trailing `/` before
+  routing, so ids like `a/b/` or `/leading` are only reachable with `/` encoded as `%2F`
+  (`/v1/blobs/a%2Fb%2F`). The `Location` header from POST always encodes the id fully, so it
+  works for every id.
 - **Single shared Bearer token.** The brief asks to keep auth simple. The token is compared in
   constant time to prevent timing attacks, and blob contents are filtered out of the logs.
 

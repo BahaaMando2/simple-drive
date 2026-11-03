@@ -37,6 +37,16 @@ class BlobsApiTest < ActionDispatch::IntegrationTest
     assert_equal "http://www.example.com/v1/blobs/hello", response.location
   end
 
+  test "the Location URL works even for ids that URL normalization would mangle" do
+    [ "a/b/", "/leading", "a//b", "docs/a b.txt", "100%", "a#b" ].each do |id|
+      post_blob(id: id, data: HELLO)
+      get response.location, headers: AUTH
+
+      assert_response :ok, id
+      assert_equal id, response.parsed_body["id"]
+    end
+  end
+
   test "binary data round-trips byte for byte" do
     data = Base64.strict_encode64((0..255).to_a.pack("C*"))
     post_blob(id: "binary", data: data)
@@ -92,6 +102,15 @@ class BlobsApiTest < ActionDispatch::IntegrationTest
       post_blob(body)
       assert_response :unprocessable_content, body.to_s[0, 60]
     end
+  end
+
+  test "an id containing a NUL character is rejected, not a server error" do
+    post_blob(id: "a\u0000b", data: HELLO)
+    assert_response :unprocessable_content
+    assert_equal "Id must not contain NUL characters", response.parsed_body["error"]
+
+    get_blob("a%00b")
+    assert_response :not_found
   end
 
   test "rejects a malformed JSON body" do

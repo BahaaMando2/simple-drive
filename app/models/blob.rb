@@ -6,6 +6,8 @@ class Blob < ApplicationRecord
   validates :size, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :storage_backend, presence: true
   validate :id_within_byte_limit
+  # JSON allows "\u0000" in strings, but Postgres text can't hold it.
+  validates :id, format: { without: /\0/, message: "must not contain NUL characters" }
 
   private
 

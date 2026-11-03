@@ -5,7 +5,12 @@ require "test_helper"
 class Storage::S3BackendTest < ActiveSupport::TestCase
   include StorageBackendContract
 
-  setup { skip "S3_ENDPOINT not set; run via docker compose to test against MinIO" if settings[:endpoint].blank? }
+  setup do
+    next if settings[:endpoint].present?
+
+    message = "S3_ENDPOINT not set; run via docker compose to test against MinIO"
+    ENV["CI"] ? flunk(message) : skip(message) # CI must never silently skip these
+  end
 
   def settings
     Rails.configuration.x.storage[:s3]

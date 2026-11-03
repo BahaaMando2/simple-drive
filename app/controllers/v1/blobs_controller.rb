@@ -25,13 +25,16 @@ module V1
         Storage.backend(blob.storage_backend).put(blob.id, bytes)
       end
 
-      render json: blob_json(blob), status: :created, location: v1_blob_url(blob.id)
+      # Every character encoded, "/" included: Rails merges "//" and drops a trailing
+      # "/" in paths, so ids like "a/b/" are only reachable as "a%2Fb%2F".
+      render json: blob_json(blob), status: :created, location: "#{v1_blobs_url}/#{ERB::Util.url_encode(blob.id)}"
     rescue ActiveRecord::RecordNotUnique
       render_error "a blob with this id already exists", :conflict
     end
 
     def show
-      blob = Blob.find_by(id: params[:id])
+      # NUL can't be in a stored id (see Blob), and Postgres rejects it in a query.
+      blob = Blob.find_by(id: params[:id]) unless params[:id].include?("\0")
       return render_error("blob not found", :not_found) unless blob
 
       bytes = Storage.backend(blob.storage_backend).get(blob.id)

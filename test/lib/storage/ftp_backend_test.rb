@@ -4,7 +4,12 @@ require "test_helper"
 class Storage::FtpBackendTest < ActiveSupport::TestCase
   include StorageBackendContract
 
-  setup { skip "FTP_HOST not set; run via docker compose to test against the FTP server" if settings[:host].blank? }
+  setup do
+    next if settings[:host].present?
+
+    message = "FTP_HOST not set; run via docker compose to test against the FTP server"
+    ENV["CI"] ? flunk(message) : skip(message) # CI must never silently skip these
+  end
 
   def settings
     Rails.configuration.x.storage[:ftp]
