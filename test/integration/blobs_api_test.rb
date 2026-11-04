@@ -155,6 +155,13 @@ class BlobsApiTest < ActionDispatch::IntegrationTest
     assert_response :bad_gateway
   end
 
+  test "a blob whose backend is no longer configured returns 502, not a crash" do
+    Blob.create!(id: "stranded", size: 1, storage_backend: "dropbox")
+
+    get_blob("stranded")
+    assert_response :bad_gateway
+  end
+
   test "blob data is filtered out of the logs" do
     filter = ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters)
 

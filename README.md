@@ -38,7 +38,7 @@ STORAGE_BACKEND=s3 docker compose up
 docker compose run --rm app bin/rails test
 ```
 
-That's 72 tests: unit tests for every backend and the signer, plus integration tests for
+That's 73 tests: unit tests for every backend and the signer, plus integration tests for
 the API. On GitHub, CI also runs RuboCop, Brakeman and bundler-audit.
 
 ## API
@@ -67,7 +67,7 @@ for load balancers.
 | 404 | No blob with that id |
 | 409 | A blob with that id already exists (blobs are never overwritten) |
 | 422 | `id` isn't a non-blank string of at most 1024 bytes, or `data` isn't valid Base64 |
-| 502 | The storage backend failed |
+| 502 | The storage backend failed, or the backend holding that blob is no longer configured |
 
 Errors are always `{"error": "<message>"}`.
 

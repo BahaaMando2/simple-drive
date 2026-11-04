@@ -44,7 +44,7 @@ end
 
 class Storage::S3BackendConfigTest < ActiveSupport::TestCase
   test "refuses to start with missing settings" do
-    error = assert_raises(ArgumentError) do
+    error = assert_raises(Storage::ConfigurationError) do
       Storage::S3Backend.new(endpoint: "http://s3", bucket: "", region: "us-east-1", access_key_id: nil, secret_access_key: "x")
     end
     assert_equal "S3 backend is missing settings: bucket, access_key_id", error.message

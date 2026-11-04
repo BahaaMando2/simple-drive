@@ -14,7 +14,7 @@ module Storage
     def initialize(endpoint:, bucket:, region:, access_key_id:, secret_access_key:)
       settings = { endpoint:, bucket:, region:, access_key_id:, secret_access_key: }
       missing = settings.select { |_, value| value.blank? }.keys
-      raise ArgumentError, "S3 backend is missing settings: #{missing.join(", ")}" if missing.any?
+      raise ConfigurationError, "S3 backend is missing settings: #{missing.join(", ")}" if missing.any?
 
       @endpoint = URI(endpoint)
       @bucket = bucket

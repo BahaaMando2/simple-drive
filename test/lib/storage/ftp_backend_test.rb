@@ -35,7 +35,7 @@ end
 
 class Storage::FtpBackendConfigTest < ActiveSupport::TestCase
   test "refuses to start with missing settings" do
-    error = assert_raises(ArgumentError) { Storage::FtpBackend.new(host: "ftp", user: "", password: nil) }
+    error = assert_raises(Storage::ConfigurationError) { Storage::FtpBackend.new(host: "ftp", user: "", password: nil) }
 
     assert_equal "FTP backend is missing settings: user, password", error.message
   end

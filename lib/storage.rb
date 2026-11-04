@@ -10,6 +10,9 @@
 module Storage
   class Error < StandardError; end
   class NotFound < Error; end
+  # A Storage::Error too, so a blob whose backend is no longer configured gets
+  # a 502 like any backend failure; at boot it still stops the app.
+  class ConfigurationError < Error; end
 
   BACKENDS = {
     "local" => LocalBackend,
@@ -42,7 +45,7 @@ module Storage
 
     def build(name)
       klass = BACKENDS.fetch(name) do
-        raise ArgumentError, "Unknown storage backend #{name.inspect}. Use one of: #{BACKENDS.keys.join(", ")}"
+        raise ConfigurationError, "Unknown storage backend #{name.inspect}. Use one of: #{BACKENDS.keys.join(", ")}"
       end
       klass.new(**config.fetch(name.to_sym, {}))
     end

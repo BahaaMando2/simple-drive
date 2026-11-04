@@ -12,7 +12,7 @@ module Storage
     def initialize(host:, user:, password:, port: 21)
       settings = { host:, user:, password: }
       missing = settings.select { |_, value| value.blank? }.keys
-      raise ArgumentError, "FTP backend is missing settings: #{missing.join(", ")}" if missing.any?
+      raise ConfigurationError, "FTP backend is missing settings: #{missing.join(", ")}" if missing.any?
 
       @host = host
       @port = Integer(port)

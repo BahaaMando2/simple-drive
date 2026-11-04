@@ -11,7 +11,7 @@ class StorageConfigTest < ActiveSupport::TestCase
   end
 
   test "an unknown backend name is refused" do
-    error = assert_raises(ArgumentError) { Storage.backend("dropbox") }
+    error = assert_raises(Storage::ConfigurationError) { Storage.backend("dropbox") }
 
     assert_match(/Unknown storage backend "dropbox"/, error.message)
   end
