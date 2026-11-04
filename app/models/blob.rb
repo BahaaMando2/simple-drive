@@ -1,5 +1,5 @@
 class Blob < ApplicationRecord
-  # Same limit as S3 object keys, so any accepted id can be stored on every backend.
+  # Bounds the primary-key index; backends store ids as fixed-length hashes anyway.
   MAX_ID_BYTES = 1024
 
   validates :id, presence: true
