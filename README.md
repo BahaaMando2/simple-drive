@@ -9,8 +9,8 @@ interchangeable storage backends:
 - **Local filesystem**
 - **FTP** (the bonus backend)
 
-All requests are authenticated with a Bearer token. Every backend is tested against a real
-server (Postgres, MinIO, vsftpd), locally and in CI.
+All requests are authenticated with a Bearer token. Every backend is tested against the real
+thing (a filesystem, Postgres, MinIO, vsftpd), locally and in CI.
 
 ## Run it
 
@@ -31,6 +31,8 @@ To pick a storage backend, set `STORAGE_BACKEND` to `local` (the default), `data
 ```sh
 STORAGE_BACKEND=s3 docker compose up
 ```
+
+On Windows PowerShell: `$env:STORAGE_BACKEND="s3"; docker compose up`.
 
 ## Test
 
@@ -66,7 +68,7 @@ for load balancers.
 | 401 | The token is missing or wrong |
 | 404 | No blob with that id |
 | 409 | A blob with that id already exists (blobs are never overwritten) |
-| 422 | `id` isn't a non-blank string of at most 1024 bytes, or `data` isn't valid Base64 |
+| 422 | `id` isn't a non-blank string of at most 1024 bytes without NUL characters, or `data` isn't valid Base64 |
 | 502 | The storage backend failed, or the backend holding that blob is no longer configured |
 
 Errors are always `{"error": "<message>"}`.
@@ -149,7 +151,7 @@ POST /v1/blobs ─► BlobsController ─► blobs table (metadata: id, size, ba
   It's separate from the `blobs` metadata table, as the brief requires, and has no foreign key
   to it, because a backend only knows ids and bytes. It shares the app's database, so the bytes
   and the metadata row commit or roll back together.
-- **S3-compatible.** Ruby's built-in `Net::HTTP` plus our own Signature V4 implementation.
+- **S3-compatible.** Ruby's built-in `Net::HTTP` plus a hand-written Signature V4 implementation.
   - Signing never sends the secret key. The request (method, path, headers, a SHA-256 of the
     body, the time) is signed with a key derived from the secret, which proves who sent it and
     that nothing changed on the way.
